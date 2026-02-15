@@ -1,15 +1,16 @@
 const CACHE_NAME = 'ahorcado-v2';
+const BASE = self.registration.scope;
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/api.js',
-  '/canvas.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
-];
+  '',
+  'index.html',
+  'style.css',
+  'app.js',
+  'api.js',
+  'canvas.js',
+  'manifest.json',
+  'icons/icon-192.png',
+  'icons/icon-512.png'
+].map(path => BASE + path);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -30,15 +31,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Cache-first para todo: si está en cache, servir; si no, intentar red
   event.respondWith(
     caches.match(event.request)
       .then(cached => {
         if (cached) return cached;
         return fetch(event.request).catch(() => {
-          // Fallback: si la request es de navegación, devolver index.html cacheado
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match(BASE + 'index.html');
           }
         });
       })

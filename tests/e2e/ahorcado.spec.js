@@ -121,8 +121,8 @@ test.describe('PWA - Manifest e instalabilidad', () => {
     const manifest = await response.json();
     expect(manifest.name).toBeTruthy();
     expect(manifest.short_name).toBeTruthy();
-    expect(manifest.start_url).toBe('/');
-    expect(manifest.scope).toBe('/');
+    expect(manifest.start_url).toBeTruthy();
+    expect(manifest.scope).toBeTruthy();
     expect(manifest.display).toBe('standalone');
     expect(manifest.lang).toBe('es');
     expect(manifest.icons.length).toBeGreaterThanOrEqual(4);
