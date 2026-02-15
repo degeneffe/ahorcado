@@ -138,4 +138,36 @@ describe('getRandomWord', () => {
     expect(word).toBe('prueba');
     expect(fetchMock).toHaveBeenCalled();
   });
+
+  it('filtra FALLBACK_WORDS por longitud cuando se pasan minLen/maxLen', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('fail')));
+
+    const word = await getRandomWord(4, 5);
+    expect(word.length).toBeGreaterThanOrEqual(4);
+    expect(word.length).toBeLessThanOrEqual(5);
+  });
+
+  it('filtra FALLBACK_WORDS por longitud larga', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('fail')));
+
+    const word = await getRandomWord(8, 12);
+    expect(word.length).toBeGreaterThanOrEqual(8);
+    expect(word.length).toBeLessThanOrEqual(12);
+  });
+
+  it('usa defaults (5, 10) cuando no se pasan parámetros', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('fail')));
+
+    const word = await getRandomWord();
+    expect(FALLBACK_WORDS).toContain(word);
+  });
+
+  it('filtra por longitud también en modo offline', async () => {
+    vi.stubGlobal('fetch', vi.fn());
+    vi.stubGlobal('navigator', { onLine: false });
+
+    const word = await getRandomWord(4, 5);
+    expect(word.length).toBeGreaterThanOrEqual(4);
+    expect(word.length).toBeLessThanOrEqual(5);
+  });
 });

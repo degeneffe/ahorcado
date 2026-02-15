@@ -41,14 +41,14 @@ const FALLBACK_WORDS = [
   'princesa', 'pulpo', 'rascacielos', 'rayo', 'regalo', 'reloj', 'remo'
 ];
 
-async function getRandomWord() {
-  const minLen = 5;
-  const maxLen = 10;
+async function getRandomWord(minLen = 5, maxLen = 10) {
   const randomLen = Math.floor(Math.random() * (maxLen - minLen + 1)) + minLen;
 
   // Si estamos offline, usar directamente el diccionario local
   if (typeof navigator !== 'undefined' && !navigator.onLine) {
-    return FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
+    const filtered = FALLBACK_WORDS.filter(w => w.length >= minLen && w.length <= maxLen);
+    const pool = filtered.length > 0 ? filtered : FALLBACK_WORDS;
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   // Intento 1: API Greenborn
@@ -82,7 +82,9 @@ async function getRandomWord() {
   } catch (_) { /* fallback */ }
 
   // Intento 3: diccionario local
-  return FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
+  const filtered = FALLBACK_WORDS.filter(w => w.length >= minLen && w.length <= maxLen);
+  const pool = filtered.length > 0 ? filtered : FALLBACK_WORDS;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function normalizeChar(ch) {

@@ -1,9 +1,61 @@
 import { test, expect } from '@playwright/test';
 
+// Helper: selecciona dificultad y espera a que cargue la palabra
+async function selectDifficultyAndWait(page, difficulty = 'normal') {
+  await page.locator(`[data-difficulty="${difficulty}"]`).click();
+  await expect(page.locator('#word-display')).not.toHaveText('', { timeout: 15000 });
+}
+
+test.describe('Pantalla de dificultad', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('se muestra la pantalla de dificultad al cargar', async ({ page }) => {
+    await expect(page.locator('#difficulty-screen')).toBeVisible();
+    await expect(page.locator('#game-container')).toBeHidden();
+  });
+
+  test('tiene 3 botones de dificultad', async ({ page }) => {
+    await expect(page.locator('.difficulty-btn')).toHaveCount(3);
+    await expect(page.locator('[data-difficulty="easy"]')).toBeVisible();
+    await expect(page.locator('[data-difficulty="normal"]')).toBeVisible();
+    await expect(page.locator('[data-difficulty="hard"]')).toBeVisible();
+  });
+
+  test('seleccionar dificultad inicia el juego', async ({ page }) => {
+    await selectDifficultyAndWait(page, 'normal');
+    await expect(page.locator('#difficulty-screen')).toBeHidden();
+    await expect(page.locator('#game-container')).toBeVisible();
+  });
+
+  test('errores muestran "0 / 8" en fácil', async ({ page }) => {
+    await selectDifficultyAndWait(page, 'easy');
+    await expect(page.locator('#errors-count')).toContainText('0 / 8');
+  });
+
+  test('errores muestran "0 / 6" en normal', async ({ page }) => {
+    await selectDifficultyAndWait(page, 'normal');
+    await expect(page.locator('#errors-count')).toContainText('0 / 6');
+  });
+
+  test('errores muestran "0 / 4" en difícil', async ({ page }) => {
+    await selectDifficultyAndWait(page, 'hard');
+    await expect(page.locator('#errors-count')).toContainText('0 / 4');
+  });
+
+  test('"Nueva partida" vuelve a mostrar selector de dificultad', async ({ page }) => {
+    await selectDifficultyAndWait(page, 'normal');
+    await page.locator('#new-game-btn').click();
+    await expect(page.locator('#difficulty-screen')).toBeVisible();
+    await expect(page.locator('#game-container')).toBeHidden();
+  });
+});
+
 test.describe('Ahorcado E2E', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#word-display')).not.toHaveText('', { timeout: 15000 });
+    await selectDifficultyAndWait(page, 'normal');
   });
 
   test('la página carga correctamente con todos los elementos', async ({ page }) => {
@@ -56,13 +108,16 @@ test.describe('Ahorcado E2E', () => {
     expect(errorsText).not.toBe('0 / 6');
   });
 
-  test('botón "Nueva partida" reinicia el juego', async ({ page }) => {
+  test('botón "Nueva partida" muestra selector de dificultad', async ({ page }) => {
     await page.keyboard.press('a');
     await page.keyboard.press('z');
 
     await page.locator('#new-game-btn').click();
-    await expect(page.locator('#errors-count')).toContainText('0 / 6', { timeout: 15000 });
+    await expect(page.locator('#difficulty-screen')).toBeVisible();
 
+    // Seleccionar de nuevo para verificar reinicio
+    await selectDifficultyAndWait(page, 'normal');
+    await expect(page.locator('#errors-count')).toContainText('0 / 6');
     await expect(page.locator('#message')).toHaveText('');
 
     const disabledKeys = page.locator('.key:disabled');
@@ -139,7 +194,7 @@ test.describe('PWA - Manifest e instalabilidad', () => {
 
   test('el Service Worker se registra correctamente', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#word-display')).not.toHaveText('', { timeout: 15000 });
+    await selectDifficultyAndWait(page, 'normal');
 
     // Verificar que el SW se registró
     const swRegistered = await page.evaluate(async () => {
@@ -155,7 +210,7 @@ test.describe('PWA - Funcionamiento offline', () => {
   test('la app funciona sin conexión usando diccionario local', async ({ page, context }) => {
     // Cargar la app online primero para que se cacheen los assets
     await page.goto('/');
-    await expect(page.locator('#word-display')).not.toHaveText('', { timeout: 15000 });
+    await selectDifficultyAndWait(page, 'normal');
 
     // Esperar a que el Service Worker esté activo
     await page.evaluate(async () => {
@@ -177,7 +232,7 @@ test.describe('PWA - Funcionamiento offline', () => {
 
     // Recargar la página en modo offline
     await page.reload();
-    await expect(page.locator('#word-display')).not.toHaveText('', { timeout: 15000 });
+    await selectDifficultyAndWait(page, 'normal');
 
     // Verificar que el juego funciona offline
     await expect(page.locator('#keyboard')).toBeVisible();

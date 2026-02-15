@@ -20,13 +20,20 @@ const { HangmanGame } = await import('../../app.js');
 
 function setupDOM() {
   document.body.innerHTML = `
-    <canvas id="hangman-canvas" width="350" height="350"></canvas>
-    <div id="loading" class="hidden"></div>
-    <div id="word-display"></div>
-    <div id="errors-count"></div>
-    <div id="message" class="message"></div>
-    <div id="keyboard"></div>
-    <button id="new-game-btn">Nueva partida</button>
+    <div id="difficulty-screen" class="difficulty-screen">
+      <button class="difficulty-btn easy" data-difficulty="easy"></button>
+      <button class="difficulty-btn normal" data-difficulty="normal"></button>
+      <button class="difficulty-btn hard" data-difficulty="hard"></button>
+    </div>
+    <main id="game-container" class="game-container hidden">
+      <canvas id="hangman-canvas" width="350" height="350"></canvas>
+      <div id="loading" class="hidden"></div>
+      <div id="word-display"></div>
+      <div id="errors-count"></div>
+      <div id="message" class="message"></div>
+      <div id="keyboard"></div>
+      <button id="new-game-btn">Nueva partida</button>
+    </main>
   `;
   const canvas = document.getElementById('hangman-canvas');
   canvas.getContext = vi.fn().mockReturnValue({
@@ -45,6 +52,7 @@ describe('Flujo completo del juego', () => {
   it('juego completo: ganar adivinando todas las letras', async () => {
     getRandomWord.mockResolvedValue('gato');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('gato'));
 
     expect(document.getElementById('word-display').textContent).toBe('_ _ _ _');
@@ -67,9 +75,10 @@ describe('Flujo completo del juego', () => {
     expect(drawStepCalls.length).toBe(0);
   });
 
-  it('juego completo: perder con 6 errores', async () => {
+  it('juego completo: perder con 6 errores en normal', async () => {
     getRandomWord.mockResolvedValue('sol');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('sol'));
 
     const wrongLetters = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -87,6 +96,7 @@ describe('Flujo completo del juego', () => {
   it('palabra con acentos: se adivina con letras sin acento', async () => {
     getRandomWord.mockResolvedValue('música');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('música'));
 
     ['m', 'u', 's', 'i', 'c', 'a'].forEach(l => game.guessLetter(l));
@@ -99,6 +109,7 @@ describe('Flujo completo del juego', () => {
   it('reiniciar juego después de ganar', async () => {
     getRandomWord.mockResolvedValue('sol');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('sol'));
 
     ['s', 'o', 'l'].forEach(l => game.guessLetter(l));
@@ -118,6 +129,7 @@ describe('Flujo completo del juego', () => {
   it('reiniciar juego después de perder', async () => {
     getRandomWord.mockResolvedValue('sol');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('sol'));
 
     ['a', 'b', 'c', 'd', 'e', 'f'].forEach(l => game.guessLetter(l));
@@ -135,6 +147,7 @@ describe('Flujo completo del juego', () => {
   it('teclado físico funciona correctamente', async () => {
     getRandomWord.mockResolvedValue('sol');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('sol'));
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 's' }));
@@ -150,6 +163,7 @@ describe('Flujo completo del juego', () => {
   it('ignora teclas con modificadores (ctrl, alt, meta)', async () => {
     getRandomWord.mockResolvedValue('sol');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('sol'));
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true }));
@@ -162,6 +176,7 @@ describe('Flujo completo del juego', () => {
   it('mezcla de aciertos y errores progresa correctamente', async () => {
     getRandomWord.mockResolvedValue('casa');
     const game = new HangmanGame();
+    game.selectDifficulty('normal');
     await vi.waitFor(() => expect(game.word).toBe('casa'));
 
     game.guessLetter('c');
@@ -182,5 +197,45 @@ describe('Flujo completo del juego', () => {
     expect(game.gameOver).toBe(true);
     expect(game.errors).toBe(2);
     expect(document.getElementById('word-display').textContent).toBe('c a s a');
+  });
+
+  it('perder en dificultad difícil con 4 errores', async () => {
+    getRandomWord.mockResolvedValue('montaña');
+    const game = new HangmanGame();
+    game.selectDifficulty('hard');
+    await vi.waitFor(() => expect(game.word).toBe('montaña'));
+
+    expect(game.maxErrors).toBe(4);
+    expect(document.getElementById('errors-count').textContent).toBe('0 / 4');
+
+    ['z', 'x', 'w', 'k'].forEach(l => game.guessLetter(l));
+    expect(game.gameOver).toBe(true);
+    expect(game.errors).toBe(4);
+    expect(document.getElementById('message').textContent).toContain('Perdiste');
+    // Hard DRAW_MAP: [[1],[2,3],[4,5],[6]]
+    expect(drawStepCalls).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+
+  it('perder en dificultad fácil con 8 errores', async () => {
+    getRandomWord.mockResolvedValue('gato');
+    const game = new HangmanGame();
+    game.selectDifficulty('easy');
+    await vi.waitFor(() => expect(game.word).toBe('gato'));
+
+    expect(game.maxErrors).toBe(8);
+    expect(document.getElementById('errors-count').textContent).toBe('0 / 8');
+
+    // 6 errores no terminan el juego en fácil
+    ['z', 'x', 'w', 'k', 'j', 'f'].forEach(l => game.guessLetter(l));
+    expect(game.gameOver).toBe(false);
+    expect(game.errors).toBe(6);
+
+    // 2 más para perder
+    ['q', 'v'].forEach(l => game.guessLetter(l));
+    expect(game.gameOver).toBe(true);
+    expect(game.errors).toBe(8);
+    expect(document.getElementById('message').textContent).toContain('Perdiste');
+    // Easy DRAW_MAP: [[1],[2],[3],[4],[5],[6],[],[]] — 6 draws for 8 errors
+    expect(drawStepCalls).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });

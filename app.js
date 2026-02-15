@@ -1,6 +1,17 @@
+const DIFFICULTY_CONFIG = {
+  easy:   { maxErrors: 8, minLen: 4, maxLen: 6, label: 'Fácil' },
+  normal: { maxErrors: 6, minLen: 5, maxLen: 8, label: 'Normal' },
+  hard:   { maxErrors: 4, minLen: 7, maxLen: 12, label: 'Difícil' }
+};
+
+const DRAW_MAP = {
+  easy:   [[1],[2],[3],[4],[5],[6],[],[]],
+  normal: [[1],[2],[3],[4],[5],[6]],
+  hard:   [[1],[2,3],[4,5],[6]]
+};
+
 class HangmanGame {
   constructor() {
-    this.maxErrors = 6;
     this.hangmanCanvas = new HangmanCanvas(document.getElementById('hangman-canvas'));
     this.wordDisplay = document.getElementById('word-display');
     this.messageEl = document.getElementById('message');
@@ -8,16 +19,39 @@ class HangmanGame {
     this.keyboardEl = document.getElementById('keyboard');
     this.errorsEl = document.getElementById('errors-count');
     this.loadingEl = document.getElementById('loading');
+    this.difficultyScreen = document.getElementById('difficulty-screen');
+    this.gameContainer = document.getElementById('game-container');
 
     this.word = '';
     this.normalizedWord = '';
     this.guessedLetters = new Set();
     this.errors = 0;
     this.gameOver = false;
+    this.difficulty = 'normal';
+    this.maxErrors = 6;
 
     this._buildKeyboard();
-    this.newGameBtn.addEventListener('click', () => this.startGame());
+    this.newGameBtn.addEventListener('click', () => this.showDifficultyScreen());
     document.addEventListener('keydown', (e) => this._handleKeyPress(e));
+
+    this.difficultyScreen.querySelectorAll('.difficulty-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.selectDifficulty(btn.dataset.difficulty));
+    });
+
+    this.showDifficultyScreen();
+  }
+
+  showDifficultyScreen() {
+    this.difficultyScreen.classList.remove('hidden');
+    this.gameContainer.classList.add('hidden');
+  }
+
+  selectDifficulty(level) {
+    this.difficulty = level;
+    const config = DIFFICULTY_CONFIG[level];
+    this.maxErrors = config.maxErrors;
+    this.difficultyScreen.classList.add('hidden');
+    this.gameContainer.classList.remove('hidden');
     this.startGame();
   }
 
@@ -33,8 +67,9 @@ class HangmanGame {
     this.wordDisplay.textContent = '';
     this.loadingEl.classList.remove('hidden');
 
+    const config = DIFFICULTY_CONFIG[this.difficulty];
     try {
-      this.word = await getRandomWord();
+      this.word = await getRandomWord(config.minLen, config.maxLen);
     } catch (_) {
       this.word = 'ahorcado';
     }
@@ -56,7 +91,9 @@ class HangmanGame {
       if (btn) btn.classList.add('wrong');
       this.errors++;
       this.errorsEl.textContent = `${this.errors} / ${this.maxErrors}`;
-      this.hangmanCanvas.drawStep(this.errors);
+      const drawMap = DRAW_MAP[this.difficulty];
+      const steps = drawMap[this.errors - 1] || [];
+      steps.forEach(step => this.hangmanCanvas.drawStep(step));
     }
 
     if (btn) btn.disabled = true;
@@ -142,4 +179,4 @@ document.addEventListener('DOMContentLoaded', () => {
   new HangmanGame();
 });
 
-if (typeof module !== 'undefined') module.exports = { HangmanGame };
+if (typeof module !== 'undefined') module.exports = { HangmanGame, DIFFICULTY_CONFIG, DRAW_MAP };

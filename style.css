@@ -193,8 +193,77 @@ canvas {
   min-height: 1.4rem;
 }
 
-#loading.hidden {
-  display: none;
+#loading.hidden,
+.hidden {
+  display: none !important;
+}
+
+.difficulty-screen {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.difficulty-screen h2 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.difficulty-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.difficulty-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.1s, filter 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.difficulty-btn:hover {
+  filter: brightness(1.1);
+}
+
+.difficulty-btn:active {
+  transform: scale(0.96);
+}
+
+.difficulty-btn.easy {
+  background: var(--correct);
+  color: #fff;
+}
+
+.difficulty-btn.normal {
+  background: var(--accent);
+  color: #fff;
+}
+
+.difficulty-btn.hard {
+  background: var(--wrong);
+  color: #fff;
+}
+
+.difficulty-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.difficulty-desc {
+  font-size: 0.85rem;
+  opacity: 0.9;
 }
 
 /* Tablet */

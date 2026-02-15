@@ -19,7 +19,25 @@
     <h1>El Ahorcado</h1>
   </header>
 
-  <main class="game-container">
+  <div id="difficulty-screen" class="difficulty-screen">
+    <h2>Elige la dificultad</h2>
+    <div class="difficulty-options">
+      <button class="difficulty-btn easy" data-difficulty="easy">
+        <span class="difficulty-label">Fácil</span>
+        <span class="difficulty-desc">8 intentos · palabras cortas</span>
+      </button>
+      <button class="difficulty-btn normal" data-difficulty="normal">
+        <span class="difficulty-label">Normal</span>
+        <span class="difficulty-desc">6 intentos · palabras medias</span>
+      </button>
+      <button class="difficulty-btn hard" data-difficulty="hard">
+        <span class="difficulty-label">Difícil</span>
+        <span class="difficulty-desc">4 intentos · palabras largas</span>
+      </button>
+    </div>
+  </div>
+
+  <main id="game-container" class="game-container hidden">
     <div class="canvas-container">
       <canvas id="hangman-canvas" width="350" height="350"></canvas>
     </div>
