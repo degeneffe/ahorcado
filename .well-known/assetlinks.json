@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.ahorcado.app",
+        "sha256_cert_fingerprints": ["2F:47:10:E0:97:76:54:1C:0D:99:9F:EE:6D:A1:B4:AD:A5:B3:A2:9B:D3:35:BD:1B:0D:F4:BB:AA:15:61:0D:0B"]
+      }
+    }]
