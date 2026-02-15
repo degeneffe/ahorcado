@@ -121,3 +121,5 @@ class HangmanCanvas {
     ctx.stroke();
   }
 }
+
+if (typeof module !== 'undefined') module.exports = { HangmanCanvas };

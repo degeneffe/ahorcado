@@ -1,0 +1,26 @@
+{
+  "packageId": "com.ahorcado.app",
+  "host": "TODO_REPLACE_WITH_DEPLOYED_URL",
+  "name": "El Ahorcado",
+  "launcherName": "Ahorcado",
+  "display": "standalone",
+  "themeColor": "#1976d2",
+  "navigationColor": "#1976d2",
+  "backgroundColor": "#f5f5f5",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "TODO_REPLACE_WITH_DEPLOYED_URL/icons/icon-512.png",
+  "maskableIconUrl": "TODO_REPLACE_WITH_DEPLOYED_URL/icons/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "android.keystore",
+    "alias": "ahorcado"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": true,
+  "orientation": "portrait"
+}

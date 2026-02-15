@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ahorcado-v1';
+const CACHE_NAME = 'ahorcado-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -30,20 +30,17 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Network-first para APIs de palabras
-  if (url.hostname.includes('greenborn') || url.hostname.includes('herokuapp')) {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  // Cache-first para assets estáticos
+  // Cache-first para todo: si está en cache, servir; si no, intentar red
   event.respondWith(
     caches.match(event.request)
-      .then(cached => cached || fetch(event.request))
+      .then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).catch(() => {
+          // Fallback: si la request es de navegación, devolver index.html cacheado
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
+        });
+      })
   );
 });

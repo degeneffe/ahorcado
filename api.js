@@ -15,13 +15,41 @@ const FALLBACK_WORDS = [
   'paloma', 'pájaro', 'pepino', 'piedra', 'planta', 'pueblo', 'puente',
   'quince', 'receta', 'relato', 'rincon', 'romper', 'sangre', 'semana',
   'sierra', 'sombra', 'tejado', 'tesoro', 'tierra', 'trueno', 'tumba',
-  'último', 'veneno', 'verano', 'vidrio', 'vuelta', 'zapato', 'zurdo'
+  'último', 'veneno', 'verano', 'vidrio', 'vuelta', 'zapato', 'zurdo',
+  'abrigo', 'actriz', 'adorno', 'alarma', 'aldea', 'alerta', 'altura',
+  'amargo', 'ancla', 'animal', 'antena', 'aplauso', 'arena', 'armario',
+  'asador', 'ataque', 'aurora', 'avion', 'azafran', 'bambu', 'banana',
+  'barril', 'bellota', 'bigote', 'bodega', 'boleto', 'bonito', 'botella',
+  'brisa', 'bronce', 'bufanda', 'burro', 'buzón', 'cabeza', 'cactus',
+  'cajón', 'calma', 'camisa', 'canela', 'capote', 'carpa', 'castillo',
+  'cedro', 'ceniza', 'cereza', 'ciervo', 'circo', 'clavel', 'cobija',
+  'collar', 'colmena', 'cometa', 'concha', 'cordel', 'crimen', 'cuadro',
+  'cuchara', 'cumbre', 'danza', 'debate', 'delantal', 'destino', 'dinero',
+  'dragon', 'duende', 'ejemplo', 'elefante', 'embudo', 'encanto', 'enigma',
+  'entrada', 'escalera', 'espada', 'establo', 'estrella', 'eterna',
+  'falda', 'faro', 'fiesta', 'flecha', 'fogata', 'fortuna', 'frasco',
+  'gancho', 'gaviota', 'gemelo', 'gigante', 'girasol', 'glaciar', 'golpe',
+  'gorra', 'granizo', 'grieta', 'guante', 'guitarra', 'halcón', 'hamaca',
+  'helado', 'herida', 'hielo', 'higuera', 'hoguera', 'hormiga', 'huerto',
+  'iglesia', 'imán', 'ingenio', 'isla', 'jazmín', 'jinete', 'jirafa',
+  'jungla', 'ladrillo', 'lámina', 'lancha', 'lectura', 'leña', 'linterna',
+  'lobo', 'loma', 'lucero', 'lunes', 'magia', 'maleta', 'manguera',
+  'manzana', 'marfil', 'marinero', 'martillo', 'melón', 'mercado',
+  'montaña', 'morena', 'muela', 'nieve', 'noche', 'novela', 'nube',
+  'nuez', 'oasis', 'oleaje', 'oliva', 'orilla', 'oveja', 'pañuelo',
+  'parque', 'pastel', 'pelota', 'pirata', 'playa', 'pluma', 'pradera',
+  'princesa', 'pulpo', 'rascacielos', 'rayo', 'regalo', 'reloj', 'remo'
 ];
 
 async function getRandomWord() {
   const minLen = 5;
   const maxLen = 10;
   const randomLen = Math.floor(Math.random() * (maxLen - minLen + 1)) + minLen;
+
+  // Si estamos offline, usar directamente el diccionario local
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
+  }
 
   // Intento 1: API Greenborn
   try {
@@ -61,3 +89,5 @@ function normalizeChar(ch) {
   const map = { 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u' };
   return map[ch] || ch;
 }
+
+if (typeof module !== 'undefined') module.exports = { getRandomWord, normalizeChar, FALLBACK_WORDS };

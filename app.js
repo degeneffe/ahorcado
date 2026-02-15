@@ -141,3 +141,5 @@ class HangmanGame {
 document.addEventListener('DOMContentLoaded', () => {
   new HangmanGame();
 });
+
+if (typeof module !== 'undefined') module.exports = { HangmanGame };
